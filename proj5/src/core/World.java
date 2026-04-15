@@ -6,6 +6,8 @@ import tileengine.TETile;
 import tileengine.Tileset;
 
 import java.awt.*;
+import java.util.Objects;
+import java.util.Random;
 
 /*
 World is not static - you can make a World() object.
@@ -30,6 +32,7 @@ TODO: Consider making toroidal array a new class.
 
 public final class World {
 
+    public final long seed;
     public static final int WIDTH = 128; // Better to make this odd for centering
     public static final int HEIGHT = 128;
 
@@ -39,7 +42,8 @@ public final class World {
 
     public TETile[][] currentWindow;
 
-    public World() {
+    public World(long seed) {
+        this.seed = seed;
         currentWindow = new TETile[WIDTH][HEIGHT];
         startX = startY = 0;
         endX = WIDTH;
@@ -58,22 +62,24 @@ public final class World {
     /**
      * Used when entering a dungeon. Note: in the highest level of federation, a dungeon need not
      * be its drawn size; you can have a 1x1 dungeon icon, for instance (though this would suck)
-     * @param seed just the world seed, nothing special
-     * @param X absolute X coordinate of the dungeon DOOR with respect to the highest level of world federation
-     * @param Y absolute Y coord of the dungeon door.
+     * @param worldX absolute worldX coordinate of the dungeon DOOR with respect to the highest level of world federation
+     * @param worldY absolute worldY coord of the dungeon door.
      *          X and Y ensure that all dungeons are unique.
      */
-    public void enterDungeon(long seed, long X, long Y) {
-
-        currentWindow = generateDungeon(seed, X, Y);
+    public void enterDungeon(long worldX, long worldY) {
+        currentWindow = generateDungeon(worldX, worldY);
 
         // TODO: Maybe a nice transition.
     }
-    private TETile[][] generateDungeon(long seed, long X, long Y) {
-        // Generates a dungeon given a seed, X, Y, HEIGHT, WIDTH.
+    // Generates a dungeon given a seed, X, Y, HEIGHT, WIDTH.
+    private TETile[][] generateDungeon(long X, long Y) {
+        Random rand = new Random(Objects.hash(seed, worldX, worldY)); // Random generator for a given dungeon - world won't have 2 same dungeons
         return null;
     }
 
     public void update() {
+        if(currentWindow[avatarX][avatarY] == Tileset.UNLOCKED_DOOR) {
+            enterDungeon(worldX, worldY);
+        }
     }
 }
