@@ -1,4 +1,3 @@
-# TDD: BYOW (Infinite Perlin World with LLM Dungeon Master)
 
 ## Data
 - **Seed (long):** The source of truth for all world generation.
