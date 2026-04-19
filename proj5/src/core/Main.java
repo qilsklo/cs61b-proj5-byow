@@ -23,8 +23,9 @@ public class Main {
 
         ter.initialize(World.WIDTH, World.HEIGHT);
 
-        //long seed = 4733073195478072994L;
-        long seed = new Random().nextLong();
+        long seed = 2550606313251798898L;
+
+        //long seed = new Random().nextLong();
 
         World worldInst = new World(seed);
 
