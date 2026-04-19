@@ -14,6 +14,16 @@ import java.util.Random;
 public class RandomUtils {
 
     /**
+     *
+     * @param X An integer on the order of the screen size.
+     * @param HEIGHT Y + HEIGHT is an Exclusive upper bound on the return[1]
+     * @return a length-two array [x,y]
+     */
+    public static int[] randomBoundedCoord(Random random, int X, int Y, int WIDTH, int HEIGHT) {
+        return new int[]{random.nextInt(WIDTH) + X, random.nextInt(HEIGHT) + Y};
+    }
+
+    /**
      * Returns a random real number uniformly in [0, 1).
      *
      * @return a random real number uniformly in [0, 1)

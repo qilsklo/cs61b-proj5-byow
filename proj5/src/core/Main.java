@@ -2,11 +2,8 @@ package core;
 
 import edu.princeton.cs.algs4.StdDraw;
 import tileengine.TERenderer;
-import tileengine.TETile;
-
-import static core.World.WIDTH;
-import static core.World.HEIGHT;
 import java.awt.*;
+import java.util.Random;
 
 /*
 Your seeds are:
@@ -19,20 +16,20 @@ Your seeds are:
 
 
 public class Main {
-    public static void main(String[] args) {
+    void main() {
         TERenderer ter = new TERenderer();
 
         StdDraw.clear(new Color(0, 0, 0));
 
-        ter.initialize(WIDTH, HEIGHT);
+        ter.initialize(World.WIDTH, World.HEIGHT);
 
-        long seed = 4733073195478072994L;
+        //long seed = 4733073195478072994L;
+        long seed = new Random().nextLong();
 
         World worldInst = new World(seed);
-        TETile[][] currentWindow = worldInst.currentWindow; // For convenience
 
         while (true) {
-            ter.drawTiles(currentWindow);
+            ter.drawTiles(worldInst.currentWindow);
             StdDraw.show();
             StdDraw.pause(10);
 
