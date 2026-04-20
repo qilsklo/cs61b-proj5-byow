@@ -31,8 +31,8 @@ TODO: Consider making toroidal array a new class.
 public final class World {
 
     public final long seed;
-    public static final int WIDTH = 50; // Better to make this odd for centering
-    public static final int HEIGHT = 50;
+    public static final int WIDTH = 96; // Match 16:10 aspect ratio
+    public static final int HEIGHT = 60;
 
     private int avatarX;
     private int avatarY; // Relative to the current screen (only relevant in dungeons)
