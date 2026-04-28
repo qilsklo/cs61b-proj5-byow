@@ -6,6 +6,15 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
+/*
+Your seeds are:
+4733073195478072994
+6016122649337190954
+6752907471955227960
+3440102649857143184
+2550606313251798898
+ */
+
 public class Main {
     static String gameName = "Stanislaw and the Mujahideen";
     static Font titleFont = generateCustomFont("Monofett-Regular.ttf");
@@ -14,6 +23,15 @@ public class Main {
     public static void main(String[] args) {
         Main game = new Main();
         game.run();
+    }
+    private void fillBlack() {
+        StdDraw.setPenColor(StdDraw.BLACK);
+        StdDraw.filledRectangle(
+                World.WIDTH / 2.0,
+                World.HEIGHT / 2.0,
+                World.WIDTH / 2.0,
+                World.HEIGHT / 2.0
+        );
     }
 
     void run() {
@@ -64,7 +82,7 @@ public class Main {
         double timeDeltaDouble = timeDelta / 9.0;
         double textUpScroll = World.HEIGHT / 10.0 * (Math.min(timeDeltaDouble, 4.0));
 
-        StdDraw.clear(StdDraw.BLACK);
+        this.fillBlack();
         StdDraw.setPenColor(StdDraw.WHITE);
 
         StdDraw.setFont(titleFont);
@@ -95,7 +113,7 @@ public class Main {
     private long promptForSeed() {
         String seedStr = "";
         while (true) {
-            StdDraw.clear(StdDraw.BLACK);
+            this.fillBlack();
             StdDraw.setPenColor(StdDraw.WHITE);
             StdDraw.setFont(monospace);
             StdDraw.text(World.WIDTH / 2.0, World.HEIGHT / 2.0 + 5, "Enter Seed:");
