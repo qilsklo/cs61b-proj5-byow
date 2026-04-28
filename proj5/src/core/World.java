@@ -43,7 +43,7 @@ public final class World {
     private int startY;
     private int endX;
     private int endY; // Implementing toroidal array
-    public long worldX, worldY; // Top left corner of the screen to set a core.World origin
+    public long worldX, worldY; // Bottom left corner of the screen to set a core.World origin
 
 
     public TETile[][] currentWindow;
