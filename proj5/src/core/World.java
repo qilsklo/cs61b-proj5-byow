@@ -2,6 +2,7 @@ package core;
 
 import tileengine.TETile;
 import tileengine.Tileset;
+import edu.princeton.cs.algs4.StdDraw;
 
 import java.util.*;
 import java.util.List;
@@ -36,6 +37,7 @@ public final class World {
 
     private int avatarX;
     private int avatarY; // Relative to the current screen (only relevant in dungeons)
+    private TETile tileUnderAvatar = Tileset.FLOOR; // Stores the tile that the avatar is currently standing on
     private int startX;
     private int startY;
     private int endX;
@@ -60,6 +62,7 @@ public final class World {
             }
         }
         currentWindow[avatarX][avatarY] = Tileset.UNLOCKED_DOOR;
+        tileUnderAvatar = Tileset.UNLOCKED_DOOR;
     }
 
     /**
@@ -121,6 +124,7 @@ public final class World {
         int[] tmp = utils.RandomUtils.randomBoundedCoord(random, avatarStartRoom.x(), avatarStartRoom.y(), avatarStartRoom.WIDTH(), avatarStartRoom.HEIGHT());
         avatarX = tmp[0];
         avatarY = tmp[1];
+        tileUnderAvatar = Tileset.FLOOR; // Avatars start on floor
 
         return toReturn;
 
@@ -206,13 +210,51 @@ public final class World {
             }
         }
     }
+    
+    public boolean moveAvatar(char direction) {
+        int nextX = avatarX;
+        int nextY = avatarY;
+        
+        switch (Character.toLowerCase(direction)) {
+            case 'w': nextY++; break;
+            case 's': nextY--; break;
+            case 'a': nextX--; break;
+            case 'd': nextX++; break;
+        }
+        
+        if (nextX >= 0 && nextX < WIDTH && nextY >= 0 && nextY < HEIGHT) {
+            TETile targetTile = currentWindow[nextX][nextY];
+            // Only allow movement on non-wall and non-nothing tiles. Modify logic if needed.
+            if (!targetTile.equals(Tileset.WALL) && !targetTile.equals(Tileset.NOTHING)) {
+                // Restore old tile
+                currentWindow[avatarX][avatarY] = tileUnderAvatar;
+                // Move avatar
+                avatarX = nextX;
+                avatarY = nextY;
+                // Store the new tile we are moving onto
+                tileUnderAvatar = currentWindow[avatarX][avatarY];
+                return true; // Moved
+            }
+        }
+        return false; // Did not move
+    }
 
-    public void update() {
-        if(currentWindow[avatarX][avatarY] == Tileset.UNLOCKED_DOOR) {
-            enterDungeon(worldX, worldY);
+    public boolean update() {
+        boolean dirty = false;
+        while(StdDraw.hasNextKeyTyped()) {
+            if(moveAvatar(StdDraw.nextKeyTyped())) {
+                dirty = true;
+            }
         }
 
-        // At the end.
+        if(tileUnderAvatar.equals(Tileset.UNLOCKED_DOOR)) {
+            enterDungeon(worldX, worldY);
+            dirty = true;
+        }
+
+        // Always ensure avatar is drawn at current location.
+        // Even if not dirty from input, initial state needs drawing.
         currentWindow[avatarX][avatarY] = Tileset.AVATAR;
+        return dirty;
     }
 }
