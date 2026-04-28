@@ -86,4 +86,5 @@ public class TERenderer {
         Font font = new Font("Monaco", Font.BOLD, TILE_SIZE - 2);
         StdDraw.setFont(font);
     }
+
 }

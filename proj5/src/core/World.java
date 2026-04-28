@@ -32,8 +32,9 @@ TODO: Consider making toroidal array a new class.
 public final class World {
 
     public final long seed;
-    public static final int WIDTH = 96; // Match 16:10 aspect ratio
-    public static final int HEIGHT = 60;
+    public static final int WIDTH = 50; // Match 16:10 aspect ratio
+    public static final int HEIGHT = 50;
+    public static final int HUD_HEIGHT = 10;
 
     private int avatarX;
     private int avatarY; // Relative to the current screen (only relevant in dungeons)
@@ -43,6 +44,7 @@ public final class World {
     private int endX;
     private int endY; // Implementing toroidal array
     public long worldX, worldY; // Top left corner of the screen to set a core.World origin
+
 
     public TETile[][] currentWindow;
 
