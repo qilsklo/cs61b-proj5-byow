@@ -3,6 +3,7 @@ package core;
 public class Player {
     public double x, y;
     public double angle;
+    public double pitch = 0; // Vertical look angle
     public double dirX, dirY;
     public double planeX, planeY;
 
@@ -27,6 +28,12 @@ public class Player {
     public void rotate(double rotationSpeed) {
         angle += rotationSpeed;
         updateVectors();
+    }
+
+    public void changePitch(double amount) {
+        pitch += amount;
+        // Clamp pitch to prevent looking too far up or down
+        pitch = Math.max(-Math.PI / 4, Math.min(Math.PI / 4, pitch));
     }
 
     public void move(double moveSpeed, World world, char direction) {

@@ -31,6 +31,9 @@ public class Main {
     private Player player;
     private static final double MOVE_SPEED = 0.1;
     private static final double ROTATION_SPEED = 0.05;
+    private static final double MOUSE_SENSITIVITY = 0.2; // Reverted to original value
+    private int lastMouseX;
+    private int lastMouseY;
     private double walkTimer = 0; // For view bobbing
 
     public static void main(String[] args) {
@@ -104,7 +107,7 @@ public class Main {
 
             StdDraw.show();
 
-            // Process keyboard input
+            // Process single-press keyboard events
             if (StdDraw.hasNextKeyTyped()) {
                 char c = Character.toLowerCase(StdDraw.nextKeyTyped());
                 inputHistory.append(c);
@@ -115,30 +118,37 @@ public class Main {
 
                 if (c == 'p') { // Toggle 3D mode
                     is3DMode = !is3DMode;
-                    // When switching to 3D, update player position to avatar position
                     if (is3DMode) {
                         player.x = worldInst.getAvatarPosition().x + 0.5;
                         player.y = worldInst.getAvatarPosition().y + 0.5;
-                        player.updateVectors(); // Ensure vectors are updated after position change
+                        player.updateVectors();
+                        lastMouseX = (int) StdDraw.mouseX();
+                        lastMouseY = (int) StdDraw.mouseY();
                     }
-                }
-
-                if (is3DMode) {
-                    if (c == 'w' || c == 's') {
-                        player.move(MOVE_SPEED, worldInst, c);
-                        walkTimer += 1; // Increment walk timer for bobbing
-                    } else if (c == 'a') {
-                        player.rotate(-ROTATION_SPEED); // Inverted
-                    } else if (c == 'd') {
-                        player.rotate(ROTATION_SPEED); // Inverted
-                    }
-                } else {
+                } else if (!is3DMode) {
                     worldInst.handleKey(c);
                 }
             }
 
-            // Process mouse input (only in 2D mode)
-            if (!is3DMode) {
+            // Process continuous-press keyboard and mouse input in 3D mode
+            if (is3DMode) {
+                if (StdDraw.isKeyPressed(87)) { // W key
+                    player.move(MOVE_SPEED, worldInst, 'w');
+                    walkTimer += 1;
+                }
+                if (StdDraw.isKeyPressed(83)) { // S key
+                    player.move(MOVE_SPEED, worldInst, 's');
+                    walkTimer += 1;
+                }
+                if (StdDraw.isKeyPressed(65)) { // A key
+                    player.rotate(-ROTATION_SPEED);
+                }
+                if (StdDraw.isKeyPressed(68)) { // D key
+                    player.rotate(ROTATION_SPEED);
+                }
+                handle3DMouseInput();
+            } else {
+                // Process mouse input in 2D mode
                 handleMouseInput(worldInst);
             }
 
@@ -149,6 +159,22 @@ public class Main {
 
             StdDraw.pause(20);
         }
+    }
+
+    private void handle3DMouseInput() {
+        int currentMouseX = (int) StdDraw.mouseX();
+        int currentMouseY = (int) StdDraw.mouseY();
+
+        int dx = currentMouseX - lastMouseX;
+        int dy = currentMouseY - lastMouseY;
+
+        // Rotate player horizontally (yaw)
+        player.rotate(dx * MOUSE_SENSITIVITY);
+        // Adjust player pitch (vertical look)
+        player.changePitch(-dy * MOUSE_SENSITIVITY); // Invert dy for natural mouse movement
+
+        lastMouseX = currentMouseX;
+        lastMouseY = currentMouseY;
     }
 
     private void handleMouseInput(World world) {

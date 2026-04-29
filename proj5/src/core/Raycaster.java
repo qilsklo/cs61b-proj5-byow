@@ -19,9 +19,9 @@ public class Raycaster {
         int screenWidth = World.WIDTH;
         int screenHeight = World.HEIGHT;
 
-        // 2. Height-Based "Bobbing"
+        // Adjust horizon based on player's pitch (vertical look)
         double yOffset = Math.sin(walkTimer * BOB_FREQUENCY) * BOB_AMPLITUDE;
-        double horizon = screenHeight / 2.0 + yOffset;
+        double horizon = screenHeight / 2.0 + yOffset + player.pitch * screenHeight;
 
         // Environment Prep: Draw Ceiling and Floor
         StdDraw.setPenColor(Color.BLACK);
