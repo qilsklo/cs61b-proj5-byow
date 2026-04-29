@@ -7,6 +7,11 @@ import tileengine.Tileset;
 import java.awt.Color;
 import java.util.Random;
 
+// Citation: Gemini 2.5 Pro helped design the Raycaster,
+// but the human team wrote over 80% of the code in this file
+// Debugging help was provided by a model, but the model was
+// specifically instructed to provide hints rather than actual
+// code.
 public class Raycaster {
 
     private static final int STRIDE = 1; // Set to 1 for smoothest rendering
