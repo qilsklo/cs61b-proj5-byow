@@ -7,6 +7,7 @@ import edu.princeton.cs.algs4.StdDraw;
 import java.awt.Point;
 import java.util.*;
 import java.util.List;
+import java.awt.Color; // Import Color
 
 public final class World {
 
@@ -62,7 +63,7 @@ public final class World {
             drawRoomInsidePartition(toReturn, r, random);
         }
 
-        buildWalls(toReturn);
+        buildWalls(toReturn, random); // Pass random to buildWalls
 
         int startRoomId = random.nextInt(leaves.size());
         Room avatarStartRoom = leaves.get(startRoomId);
@@ -122,7 +123,7 @@ public final class World {
         }
     }
 
-    private void buildWalls(TETile[][] world) {
+    private void buildWalls(TETile[][] world, Random random) {
         for (int x = 0; x < WIDTH; x++) {
             for (int y = 0; y < HEIGHT; y++) {
                 if (world[x][y] == Tileset.FLOOR) {
@@ -131,7 +132,9 @@ public final class World {
                             int nx = x + dx;
                             int ny = y + dy;
                             if (nx >= 0 && nx < WIDTH && ny >= 0 && ny < HEIGHT && world[nx][ny] == Tileset.NOTHING) {
-                                world[nx][ny] = Tileset.WALL;
+                                // Assign a random color to the wall
+                                Color randomColor = new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256));
+                                world[nx][ny] = new TETile(Tileset.WALL.character(), Tileset.WALL.textColor(), randomColor, Tileset.WALL.description(), Tileset.WALL.id());
                             }
                         }
                     }
@@ -182,5 +185,19 @@ public final class World {
 
     public TETile[][] getTiles() {
         return currentWindow;
+    }
+
+    public boolean isWall(int x, int y) {
+        if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT) {
+            return true; // Treat out of bounds as walls
+        }
+        return currentWindow[x][y].equals(Tileset.WALL) || currentWindow[x][y].description().equals(Tileset.WALL.description());
+    }
+
+    public TETile getTile(int x, int y) {
+        if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT) {
+            return Tileset.NOTHING; // Or a specific "out of bounds" tile
+        }
+        return currentWindow[x][y];
     }
 }

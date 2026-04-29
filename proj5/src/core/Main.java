@@ -27,6 +27,12 @@ public class Main {
     private int mouseCooldown = 0;
     private MusicPlayer musicPlayer = new MusicPlayer();
 
+    private boolean is3DMode = false;
+    private Player player;
+    private static final double MOVE_SPEED = 0.1;
+    private static final double ROTATION_SPEED = 0.05;
+    private double walkTimer = 0; // For view bobbing
+
     public static void main(String[] args) {
         Main game = new Main();
         game.run();
@@ -36,9 +42,9 @@ public class Main {
         StdDraw.setPenColor(StdDraw.BLACK);
         StdDraw.filledRectangle(
                 World.WIDTH / 2.0,
-                World.HEIGHT / 2.0,
+                (World.HEIGHT + World.HUD_HEIGHT) / 2.0, // Adjust center Y to cover HUD area
                 World.WIDTH / 2.0,
-                World.HEIGHT / 2.0
+                (World.HEIGHT + World.HUD_HEIGHT) / 2.0 // Adjust height to cover HUD area
         );
     }
 
@@ -64,6 +70,9 @@ public class Main {
             worldInst = new World(Long.parseLong(seedString));
         }
 
+        // Initialize player after world is created
+        player = new Player(worldInst.getAvatarPosition().x + 0.5, worldInst.getAvatarPosition().y + 0.5, Math.PI / 2);
+
         musicPlayer.stopMusic();
         Random random = new Random();
         int musicIndex = random.nextInt(3);
@@ -74,18 +83,24 @@ public class Main {
 
         // Main Game Loop
         while (true) {
+            this.fillBlack(); // Clear screen at the beginning of each frame
+
             // Render the world and HUD
-            ter.drawTiles(worldInst.currentWindow);
-            hud.draw(worldInst);
+            if (is3DMode) {
+                Raycaster.render(worldInst, player, walkTimer);
+            } else {
+                ter.drawTiles(worldInst.currentWindow);
+                hud.draw(worldInst);
 
-            // Visualize the path if it exists
-            if (path != null) {
-                visualizePath();
+                // Visualize the path if it exists
+                if (path != null) {
+                    visualizePath();
+                }
+
+                // Draw the avatar explicitly to ensure it's on top
+                Point avatarPos = worldInst.getAvatarPosition();
+                Tileset.AVATAR.draw(avatarPos.x, avatarPos.y);
             }
-
-            // Draw the avatar explicitly to ensure it's on top
-            Point avatarPos = worldInst.getAvatarPosition();
-            Tileset.AVATAR.draw(avatarPos.x, avatarPos.y);
 
             StdDraw.show();
 
@@ -98,11 +113,34 @@ public class Main {
                     break; // Exit loop to quit
                 }
 
-                worldInst.handleKey(c);
+                if (c == 'p') { // Toggle 3D mode
+                    is3DMode = !is3DMode;
+                    // When switching to 3D, update player position to avatar position
+                    if (is3DMode) {
+                        player.x = worldInst.getAvatarPosition().x + 0.5;
+                        player.y = worldInst.getAvatarPosition().y + 0.5;
+                        player.updateVectors(); // Ensure vectors are updated after position change
+                    }
+                }
+
+                if (is3DMode) {
+                    if (c == 'w' || c == 's') {
+                        player.move(MOVE_SPEED, worldInst, c);
+                        walkTimer += 1; // Increment walk timer for bobbing
+                    } else if (c == 'a') {
+                        player.rotate(-ROTATION_SPEED); // Inverted
+                    } else if (c == 'd') {
+                        player.rotate(ROTATION_SPEED); // Inverted
+                    }
+                } else {
+                    worldInst.handleKey(c);
+                }
             }
 
-            // Process mouse input
-            handleMouseInput(worldInst);
+            // Process mouse input (only in 2D mode)
+            if (!is3DMode) {
+                handleMouseInput(worldInst);
+            }
 
             // Decrement cooldown
             if (mouseCooldown > 0) {

@@ -226,4 +226,11 @@ public class TETile {
     public boolean isTraversable() {
         return this.id != Tileset.WALL.id() && this.id != Tileset.NOTHING.id();
     }
+
+    public Color getBackgroundColor() {
+        return backgroundColor;
+    }
+    public Color textColor() {
+        return textColor;
+    }
 }
