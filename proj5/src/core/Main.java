@@ -2,12 +2,16 @@ package core;
 
 import edu.princeton.cs.algs4.StdDraw;
 import tileengine.TERenderer;
+import tileengine.Tileset;
+
+import java.awt.Point;
 import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -17,6 +21,9 @@ public class Main {
 
     private StringBuilder inputHistory = new StringBuilder();
     private boolean colonTyped = false;
+    private List<Point> path = null;
+    private Point targetTile = null;
+    private int mouseCooldown = 0;
 
     public static void main(String[] args) {
         Main game = new Main();
@@ -59,12 +66,22 @@ public class Main {
 
         // Main Game Loop
         while (true) {
-            // Always render first
+            // Render the world and HUD
             ter.drawTiles(worldInst.currentWindow);
             hud.draw(worldInst);
+
+            // Visualize the path if it exists
+            if (path != null) {
+                visualizePath();
+            }
+
+            // Draw the avatar explicitly to ensure it's on top
+            Point avatarPos = worldInst.getAvatarPosition();
+            Tileset.AVATAR.draw(avatarPos.x, avatarPos.y);
+
             StdDraw.show();
 
-            // Process new keyboard input
+            // Process keyboard input
             if (StdDraw.hasNextKeyTyped()) {
                 char c = Character.toLowerCase(StdDraw.nextKeyTyped());
                 inputHistory.append(c);
@@ -73,9 +90,102 @@ public class Main {
                     break; // Exit loop to quit
                 }
 
-                worldInst.handleKey(c); // Use handleKey instead of update loop
+                worldInst.handleKey(c);
             }
-            StdDraw.pause(10);
+
+            // Process mouse input
+            handleMouseInput(worldInst);
+
+            // Decrement cooldown
+            // We need a cooldown to prevent debounce, since double-clicks
+            // are relevant in the game
+            if (mouseCooldown > 0) {
+                mouseCooldown--;
+            }
+
+            StdDraw.pause(20);
+        }
+    }
+
+    private void handleMouseInput(World world) {
+        if (mouseCooldown == 0 && StdDraw.isMousePressed()) {
+            int x = (int) StdDraw.mouseX();
+            int y = (int) StdDraw.mouseY();
+            Point clickedTile = new Point(x, y);
+
+            if (targetTile != null && targetTile.equals(clickedTile)) {
+                // Second click on the same tile, animate movement
+                animateAvatar(world);
+                path = null;
+                targetTile = null;
+            } else {
+                // First click or new tile click
+                Point start = world.getAvatarPosition();
+                if (world.isTraversable(x, y)) {
+                    path = Pathfinder.findPath(world, start, clickedTile);
+                    if (path != null && !path.isEmpty()) {
+                        targetTile = clickedTile;
+                    } else {
+                        path = null;
+                        targetTile = null;
+                    }
+                }
+            }
+            mouseCooldown = 20; // Set cooldown to prevent immediate re-triggering
+        }
+    }
+
+    private void visualizePath() {
+        StdDraw.setPenColor(Color.YELLOW);
+        for (Point p : path) {
+            StdDraw.filledCircle(p.x + 0.5, p.y + 0.5, 0.3);
+        }
+    }
+
+    private void animateAvatar(World world) {
+        if (path == null) {
+            return;
+        }
+
+        TERenderer ter = new TERenderer();
+        HUD hud = new HUD();
+
+        for (int i = 0; i < path.size(); i++) {
+            Point current = world.getAvatarPosition();
+            Point next = path.get(i);
+
+            int dx = next.x - current.x;
+            int dy = next.y - current.y;
+
+            char move = 0;
+            if (dx == 1) move = 'd';
+            else if (dx == -1) move = 'a';
+            else if (dy == 1) move = 'w';
+            else if (dy == -1) move = 's';
+
+            if (move != 0) {
+                world.handleKey(move);
+            }
+
+            // Redraw everything each frame of the animation
+            ter.drawTiles(world.currentWindow);
+            hud.draw(world);
+
+            // Draw remaining path
+            if (i < path.size() - 1) {
+                StdDraw.setPenColor(Color.YELLOW);
+                for (int j = i + 1; j < path.size(); j++) {
+                    Point p = path.get(j);
+                    StdDraw.filledCircle(p.x + 0.5, p.y + 0.5, 0.3);
+                }
+            }
+            
+            // Draw avatar
+            Point avatarPos = world.getAvatarPosition();
+            Tileset.AVATAR.draw(avatarPos.x, avatarPos.y);
+
+            StdDraw.show();
+            StdDraw.pause(100);
         }
     }
 

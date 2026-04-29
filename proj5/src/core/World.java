@@ -4,15 +4,15 @@ import tileengine.TETile;
 import tileengine.Tileset;
 import edu.princeton.cs.algs4.StdDraw;
 
+import java.awt.Point;
 import java.util.*;
 import java.util.List;
-
 
 public final class World {
 
     public final long seed;
     public static final int WIDTH = 96;
-    public static final int HEIGHT = 60;
+    public static final int HEIGHT = 30;
     public static final int HUD_HEIGHT = 10;
 
     private int avatarX;
@@ -20,20 +20,17 @@ public final class World {
     private TETile tileUnderAvatar = Tileset.FLOOR;
     public long worldX, worldY;
 
-
     public TETile[][] currentWindow;
 
     public World(long seed) {
         this.seed = seed;
         currentWindow = new TETile[WIDTH][HEIGHT];
         worldX = worldY = 0;
-        // This will now generate the full dungeon upon creation
         enterDungeon(worldX, worldY);
     }
 
     public void enterDungeon(long dungeonWorldX, long dungeonWorldY) {
         currentWindow = generateDungeon(dungeonWorldX, dungeonWorldY);
-        // After generating, place the avatar
         currentWindow[avatarX][avatarY] = Tileset.AVATAR;
     }
 
@@ -170,5 +167,20 @@ public final class World {
             return !targetTile.equals(Tileset.WALL) && !targetTile.equals(Tileset.NOTHING);
         }
         return false;
+    }
+
+    public Point getAvatarPosition() {
+        return new Point(avatarX, avatarY);
+    }
+
+    public boolean isTraversable(int x, int y) {
+        if (x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT) {
+            return currentWindow[x][y].isTraversable();
+        }
+        return false;
+    }
+
+    public TETile[][] getTiles() {
+        return currentWindow;
     }
 }

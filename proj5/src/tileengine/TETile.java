@@ -222,4 +222,8 @@ public class TETile {
         }
         return (o instanceof TETile otherTile && otherTile.id == this.id);
     }
+
+    public boolean isTraversable() {
+        return this.id != Tileset.WALL.id() && this.id != Tileset.NOTHING.id();
+    }
 }
