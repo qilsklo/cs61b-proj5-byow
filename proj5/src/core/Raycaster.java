@@ -20,14 +20,21 @@ public class Raycaster {
         int screenHeight = World.HEIGHT;
 
         // Adjust horizon based on player's pitch (vertical look)
+        // Invert the pitch effect so looking down (negative pitch) raises the horizon, showing more floor.
         double yOffset = Math.sin(walkTimer * BOB_FREQUENCY) * BOB_AMPLITUDE;
-        double horizon = screenHeight / 2.0 + yOffset + player.pitch * screenHeight;
+        double horizon = screenHeight / 2.0 + yOffset - player.pitch * screenHeight; // Changed + to -
 
-        // Environment Prep: Draw Ceiling and Floor
-        StdDraw.setPenColor(Color.BLACK);
-        StdDraw.filledRectangle(screenWidth / 2.0, horizon + screenHeight / 4.0, screenWidth / 2.0, screenHeight / 2.0);
-        StdDraw.setPenColor(Color.DARK_GRAY);
-        StdDraw.filledRectangle(screenWidth / 2.0, horizon - screenHeight / 4.0, screenWidth / 2.0, screenHeight / 2.0);
+        if (horizon < 0) horizon = 0; //clamp 'em
+        if (horizon > screenHeight) horizon = screenHeight;
+
+        // Environment Prep: Draw Floor and Ceiling
+        // Draw floor from bottom of screen to horizon
+        StdDraw.setPenColor(Color.DARK_GRAY); // Floor color
+        StdDraw.filledRectangle(screenWidth / 2.0, horizon / 2.0, screenWidth / 2.0, horizon / 2.0);
+
+        // Draw ceiling from horizon to top of screen
+        StdDraw.setPenColor(Color.BLACK); // Ceiling color
+        StdDraw.filledRectangle(screenWidth / 2.0, (horizon + screenHeight) / 2.0, screenWidth / 2.0, (screenHeight - horizon) / 2.0);
 
         for (int x = 0; x < screenWidth; x += STRIDE) {
             double cameraX = 2 * x / (double) screenWidth - 1;
@@ -83,6 +90,7 @@ public class Raycaster {
             } else {
                 perpWallDist = (sideDistY - deltaDistY);
             }
+            if (perpWallDist <= 0) perpWallDist = 0.1; // Preventing div by zero
 
             int lineHeight = (int) (screenHeight / perpWallDist);
 

@@ -146,6 +146,12 @@ public class Main {
                 if (StdDraw.isKeyPressed(68)) { // D key
                     player.rotate(ROTATION_SPEED);
                 }
+                if (StdDraw.isKeyPressed(81)) { // Q key - Look Up
+                    player.changePitch(ROTATION_SPEED);
+                }
+                if (StdDraw.isKeyPressed(69)) { // E key - Look Down
+                    player.changePitch(-ROTATION_SPEED);
+                }
                 handle3DMouseInput();
             } else {
                 // Process mouse input in 2D mode
