@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
@@ -24,6 +25,7 @@ public class Main {
     private List<Point> path = null;
     private Point targetTile = null;
     private int mouseCooldown = 0;
+    private MusicPlayer musicPlayer = new MusicPlayer();
 
     public static void main(String[] args) {
         Main game = new Main();
@@ -51,6 +53,7 @@ public class Main {
         if (startChoice.equals("quit")) {
             return;
         }
+        
 
         if (startChoice.equals("load")) {
             loadState();
@@ -60,6 +63,11 @@ public class Main {
             inputHistory.append("n").append(seedString).append("s");
             worldInst = new World(Long.parseLong(seedString));
         }
+
+        musicPlayer.stopMusic();
+        Random random = new Random();
+        int musicIndex = random.nextInt(3);
+        musicPlayer.playMusic("proj5/music/music_" + musicIndex + ".wav", true);
 
         HUD hud = new HUD();
         ter.resetFont();
@@ -97,8 +105,6 @@ public class Main {
             handleMouseInput(worldInst);
 
             // Decrement cooldown
-            // We need a cooldown to prevent debounce, since double-clicks
-            // are relevant in the game
             if (mouseCooldown > 0) {
                 mouseCooldown--;
             }
@@ -190,6 +196,7 @@ public class Main {
     }
 
     private String runMainMenu() {
+        musicPlayer.playMusic("proj5/music/music_0.wav", true);
         int menuTime = 0;
         while (true) {
             double timeDeltaDouble = menuTime / 9.0;
